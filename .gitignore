@@ -7,7 +7,6 @@
 /*
 
 # Re-include the committed scaffold (and nothing else).
-!/bin/
 !/seo-skills/
 !/config.yaml
 !/SOUL.md

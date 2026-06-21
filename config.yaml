@@ -1,13 +1,19 @@
-# seoclaw configuration — read by stock Hermes Agent (unmodified).
-# `bin/seoclaw` seeds a copy of this into ./.hermes-home/ on first run; Hermes
-# reads (and may migrate) THAT copy, so this committed file stays pristine.
+# seoclaw configuration — a ready-made Hermes Agent config.
+#
+# This repo IS a Hermes home: point HERMES_HOME at the checkout and `hermes`
+# reads this file, the SOUL.md persona, and the seo-skills/ bundle directly.
+#   export HERMES_HOME="$PWD"   # from the repo root, then run: hermes
 # Schema: https://hermes-agent.nousresearch.com/docs/user-guide/configuration
 
+# Config format version Hermes migrates against. Stamped so a matching Hermes
+# version reads this file untouched; a newer Hermes will normalize it on first
+# run (expected — just a format bump).
+_config_version: 30
+
 # ── Provider: OpenAI Codex subscription (OAuth, not an api_key) ─────────────
-# One-time: `bin/seoclaw auth add openai-codex` stores the login under
-# ./.hermes-home/auth.json (offers to import an existing ~/.codex/auth.json).
-# Want a different provider/model? Change these two lines, or run
-# `bin/seoclaw model`.
+# One-time: `hermes auth add openai-codex` stores the login under
+# $HERMES_HOME/auth.json (offers to import an existing ~/.codex/auth.json).
+# Want a different provider/model? Change these two lines, or run `hermes model`.
 model:
   provider: "openai-codex"
   default: "gpt-5.5"
@@ -24,13 +30,15 @@ approvals:
   mode: manual
 
 # ── Skills: the SEO bundle shipped IN THIS REPO ────────────────────────────
-# Relative entries resolve against HERMES_HOME (= ./.hermes-home), so
-# "../seo-skills" → <repo>/seo-skills, the committed read-only bundle. It is
-# deliberately NOT named "skills": that is Hermes' own local skills dir, and an
-# external entry equal to it is dropped. Edit a SKILL.md and just relaunch.
+# external_dirs is Hermes' standard way to load skills from outside the home's
+# own skills/ dir. Relative entries resolve against HERMES_HOME (= the repo),
+# so "seo-skills" → <repo>/seo-skills. It's deliberately NOT named "skills":
+# that's Hermes' own local skills dir (where it syncs its bundled library), and
+# an external entry equal to it is dropped. The bundled skills stay available
+# alongside these. Edit a SKILL.md and relaunch — changes are picked up live.
 skills:
   external_dirs:
-    - "../seo-skills"
+    - "seo-skills"
 
 # ── Integration: OpenSEO MCP (the only SEO integration) ────────────────────
 # Remote HTTP server. OpenSEO authenticates in-conversation via OAuth on the
