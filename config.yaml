@@ -1,0 +1,32 @@
+# seoclaw — Hermes Agent config for the SEO profile.
+#
+# Part of the seoclaw profile distribution: `hermes profile install` copies this
+# into ~/.hermes/profiles/seoclaw/config.yaml. config.yaml is preserved across
+# `hermes profile update`, so any tweaks you make there survive updates.
+
+# ── Provider: OpenAI Codex subscription (OAuth, not an api_key) ─────────────
+# One-time after install:  hermes -p seoclaw auth add openai-codex
+# (offers to import an existing ~/.codex/auth.json). Prefer another model?
+# Change these two lines or run `seoclaw model`.
+model:
+  provider: openai-codex
+  default: gpt-5.5
+
+# ── Agent behavior: tuned for multi-lookup SEO research turns ──────────────
+agent:
+  reasoning_effort: high   # engage real reasoning; hidden from chat output
+  max_turns: 100           # room for research that sweeps many OpenSEO lookups
+
+# ── Security: supervised — prompt before risky actions ─────────────────────
+# A hardline blocklist always refuses unconditionally destructive commands.
+# Use "smart" to auto-clear low-risk ones, or "off" to disable prompts.
+approvals:
+  mode: manual
+
+# ── Integration: OpenSEO MCP (the only SEO integration) ────────────────────
+# Remote HTTP server. OpenSEO authenticates in-conversation via OAuth.
+# One-time after install:  hermes -p seoclaw mcp login openseo
+mcp_servers:
+  openseo:
+    url: https://app.openseo.so/mcp
+    auth: oauth

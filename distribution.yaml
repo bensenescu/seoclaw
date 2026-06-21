@@ -1,0 +1,12 @@
+name: seoclaw
+version: 1.0.0
+description: "An opinionated SEO agent — OpenSEO MCP, SEO skills, and a tuned persona on Hermes."
+hermes_requires: ">=0.17.0"
+author: "Ben Senescu"
+license: "MIT"
+
+# No env_requires: both the model (OpenAI Codex) and OpenSEO authenticate via
+# OAuth, stored per-profile in auth.json — not via env vars. After install,
+# run the two one-time logins in the README:
+#   hermes -p seoclaw auth add openai-codex
+#   hermes -p seoclaw mcp login openseo
