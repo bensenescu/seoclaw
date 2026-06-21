@@ -48,6 +48,15 @@ sed -e "s|__SKILLS_DIR__|$SKILLS_DIR|g" \
     "$TEMPLATE" > "$CONFIG_FILE"
 ok "OpenSEO connected"
 
+# Seed the heartbeat task list into the agent workspace (used only when run as
+# a daemon). The runtime auto-creates a placeholder if absent; we seed ours so
+# the periodic checks are useful out of the box. Don't clobber edits on re-run.
+HEARTBEAT_FILE="$ZEROCLAW_CONFIG_DIR/agents/seo/workspace/HEARTBEAT.md"
+if [ ! -f "$HEARTBEAT_FILE" ]; then
+  mkdir -p "$(dirname "$HEARTBEAT_FILE")"
+  cp "$REPO_DIR/config/HEARTBEAT.md" "$HEARTBEAT_FILE"
+fi
+
 # ── Step 2: OpenAI Codex sign-in ────────────────────────────────────────────
 # Codex sub auth uses a stored login profile, not an api_key (see README).
 step "Step 2 of 2 · Sign in to OpenAI Codex"
@@ -73,4 +82,6 @@ zeroclaw auth status >/dev/null 2>&1 || true
 printf '\n'
 bold "✅  All set — your SEO assistant is ready."
 printf '\nStart chatting with it:\n'
-printf '  \033[1mbin/seoclaw agent -a seo\033[0m\n\n'
+printf '  \033[1mbin/seoclaw agent -a seo\033[0m\n'
+printf '\nOr run it always-on so it does periodic SEO checks (heartbeats):\n'
+printf '  \033[1mbin/seoclaw daemon\033[0m\n\n'

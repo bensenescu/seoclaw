@@ -25,10 +25,11 @@ requires_openai_auth = true
 # ── Agent: the SEO claw ────────────────────────────────────────────────────
 # `zeroclaw agent -a seo`  (or `seoclaw agent -a seo` via the bin/ wrapper)
 [agents.seo]
-model_provider = "openai.coding"
-risk_profile   = "supervised"
-skill_bundles  = ["seo"]
-mcp_bundles    = ["seo"]
+model_provider  = "openai.coding"
+risk_profile    = "supervised"
+runtime_profile = "seo"          # enables extended thinking (see [runtime_profiles.seo])
+skill_bundles   = ["seo"]
+mcp_bundles     = ["seo"]
 
 # ── Risk profile: supervised (medium-risk needs approval, high-risk blocked) ─
 [risk_profiles.supervised]
@@ -36,10 +37,12 @@ level                            = "supervised"
 workspace_only                   = true
 require_approval_for_medium_risk = true
 block_high_risk_commands         = true
-# OpenSEO is read-mostly research. Uncomment to stop the agent prompting for
-# approval on every OpenSEO lookup once you've confirmed the tool names:
-#   auto_approve = ["openseo__get_keyword_metrics", "openseo__research_keywords"]
-# or, to approve the whole server, "openseo__*" / "*".
+# Subagents: auto-approve `spawn_subagent` so the agent can delegate research
+# to ephemeral child agents without an approval prompt each time. (Subagents
+# inherit this same profile, so their own tool calls are still gated.)
+auto_approve = ["spawn_subagent"]
+# To also stop prompts on OpenSEO lookups, add the tool names you use, e.g.:
+#   auto_approve = ["spawn_subagent", "openseo__get_keyword_metrics", "openseo__research_keywords"]
 
 # ── Skills: the OpenSEO skill bundle shipped IN THIS REPO ──────────────────
 # Points straight at this checkout's skills/seo dir — edit a SKILL.md, restart
@@ -57,3 +60,25 @@ servers = ["openseo"]
 name = "openseo"
 transport = "http"
 url = "__OPENSEO_URL__"
+
+# ── Runtime profile: extended thinking for deeper SEO reasoning ────────────
+# Assigned to agents.seo via `runtime_profile = "seo"` above. high/max engage
+# real reasoning budgets; native_thinking sends the provider's `thinking`
+# parameter rather than just a prompt nudge. (Reasoning improves answers but
+# stays hidden from chat output by design.)
+[runtime_profiles.seo.thinking]
+default_level   = "high"
+native_thinking = true
+# budget_tokens = { high = 10000, max = 50000 }   # optional; sensible defaults apply
+
+# ── Heartbeats: periodic autonomous SEO checks ─────────────────────────────
+# Only runs when seoclaw runs as a daemon/service (`seoclaw daemon` or
+# `zeroclaw service install`) — NOT during interactive `agent -a seo`.
+# Each tick reads the task list from:
+#   <config_dir>/agents/seo/workspace/HEARTBEAT.md   (seeded by setup.sh)
+# In two-phase mode the model first decides whether anything is due, then acts.
+[heartbeat]
+enabled          = true
+agent            = "seo"
+interval_minutes = 60
+two_phase        = true
