@@ -8,6 +8,10 @@
 # Schema reference: https://docs.zeroclawlabs.ai/master/en/reference/config.html
 # ---------------------------------------------------------------------------
 
+# Config schema version. Required — without it the runtime treats this as a
+# legacy config and drops the V3 `providers.models` section on migration.
+schema_version = 3
+
 # ── Provider: OpenAI Codex subscription (the only provider) ────────────────
 # Codex sub auth is NOT an api_key. `setup.sh` runs
 #   zeroclaw auth login --model-provider openai-codex
