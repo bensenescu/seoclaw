@@ -14,9 +14,8 @@ your default Hermes setup.
 # 1. Install Hermes (skip if you already have it)
 curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
 
-# 2. Install the seoclaw profile (from GitHub — or a local clone)
-hermes profile install <repo-url> --alias
-#   local dev:  hermes profile install /path/to/seoclaw --alias
+# 2. Install the seoclaw profile
+hermes profile install github.com/bensenescu/seoclaw --alias
 
 # 3. One-time sign-ins (stored per-profile, never committed)
 hermes -p seoclaw auth add openai-codex   # the model: OpenAI Codex (imports ~/.codex/auth.json if present)
@@ -60,12 +59,45 @@ seoclaw/
     └── onboarding-checklist/
 ```
 
+## Develop & test locally
+
+Editing the profile (`config.yaml`, `SOUL.md`, or `skills/`)? Install it straight
+from your clone — no push needed — under a throwaway name so it doesn't collide
+with a real `seoclaw` install:
+
+```bash
+# From the repo root: install the working tree as a test profile.
+# The source is `.` (this folder); --name keeps it separate from `seoclaw`.
+hermes profile install . --name seoclaw-dev
+
+# Sign in once (auth is per-profile)
+hermes -p seoclaw-dev auth add openai-codex
+hermes -p seoclaw-dev mcp login openseo
+
+# Try it
+hermes -p seoclaw-dev mcp list      # openseo should show ✓ enabled
+hermes -p seoclaw-dev skills list   # the 7 SEO skills, enabled
+hermes -p seoclaw-dev               # chat
+
+# After editing files, pull your changes into the test profile:
+hermes profile update seoclaw-dev                 # refreshes SOUL.md + skills/
+hermes profile update seoclaw-dev --force-config  # also re-copy config.yaml (preserved by default)
+
+# Tear it down when done
+hermes profile delete seoclaw-dev --yes
+```
+
+`profile install` records `.` as the source, so `profile update` re-pulls from
+your working tree — the edit → `update` → test loop needs no commit or push.
+Note `config.yaml` is preserved across updates (so local model tweaks survive);
+pass `--force-config` when you want your edited `config.yaml` copied in too.
+
 ## Make it yours
 
 It's a scaffold — fork the repo and edit `config.yaml`, `SOUL.md`, or `skills/`,
-then re-install your fork (`hermes profile install <your-fork> --alias`). For
-quick local tweaks, edit the installed copy under `~/.hermes/profiles/seoclaw/`
-directly.
+then re-install your fork (`hermes profile install github.com/<you>/seoclaw --alias`).
+For quick tweaks to a live install, edit the copy under
+`~/.hermes/profiles/seoclaw/` directly.
 
 - **Model / provider** — the `model:` lines in `config.yaml`, or run `seoclaw model`.
 - **Persona** — `SOUL.md`.

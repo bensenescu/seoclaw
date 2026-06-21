@@ -46,14 +46,15 @@ If keywords are not provided, use `list_saved_keywords` for saved sets, `researc
 Use this variant when the user asks to update or create a content plan/roadmap from OpenSEO data. See `references/data-driven-content-plans.md` for a compact example pattern.
 
 1. Verify the project with `whoami` and `list_projects`; pick the matching domain when unambiguous.
-2. Pull both first-party and market data before recommending pages:
+2. Capture business context before scoring clusters: primary conversion goal, secondary awareness/community goals, current target audience, later audience, language/market, and any strategic assets such as an open-source repo.
+3. Pull both first-party and market data before recommending pages:
    - Search Console `['query','page']` for striking-distance queries and cannibalization.
    - Search Console `['page']` for current page demand and weak CTR/position pages.
    - `list_saved_keywords` for existing tags/clusters.
    - `get_keyword_metrics` for candidate cluster volume, KD, CPC, intent, and trends.
    - `get_serp_results` for representative primary terms to validate page type and SERP format.
    - `find_serp_competitors` or competitor/domain tools when market leadership affects prioritization.
-3. Prioritize updates to existing URLs before net-new pages when Search Console MCP data already shows impressions.
+4. Prioritize updates to existing URLs before net-new pages when Search Console MCP data already shows impressions, but let business value break ties: paid-conversion pages first, then strategic demand/visibility assets, then broader education.
 4. Separate immediate targets, support-only/deferred clusters, and “do not chase yet” topics; explain each with numbers.
 5. If no existing plan file is found and the user asked to update the plan, create a durable repo-local plan such as `seo/<domain>/content-plan.md` rather than leaving the result only in chat.
 6. Include measurement targets tied to the current Search Console MCP baseline: starting position/impressions, target movement, and check cadence.

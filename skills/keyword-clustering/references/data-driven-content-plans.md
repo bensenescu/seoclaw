@@ -1,49 +1,57 @@
-# Data-driven OpenSEO content plans
+# Data-driven content plans with OpenSEO MCP
 
-Use this reference when a user asks for a content plan, SEO roadmap, or content-priority update and OpenSEO MCP data is available.
+Use this reference when updating a durable content plan from live OpenSEO data.
 
-## Data sources to combine
+## Required context before scoring pages
 
-- `whoami` + `list_projects`: prove MCP connectivity and choose the correct project/domain.
-- GSC `dimensions: ['query','page']`: query-to-URL mapping, striking-distance opportunities, accidental cannibalization, and pages receiving impressions for the wrong intent.
-- GSC `dimensions: ['page']`: page-level demand, CTR, and average-position baseline.
-- `list_saved_keywords`: existing cluster/tag strategy; do not duplicate saved work.
-- `get_keyword_metrics`: volume, KD, CPC, intent, and trend for the candidate cluster heads.
-- `get_serp_results`: validate SERP intent and page format for representative terms.
-- `find_serp_competitors`: identify recurring market winners and domain types across the planned query set.
+Capture the business strategy in the plan, not just keywords:
 
-## Analysis pattern
+- Primary conversion goal, e.g. organic traffic that becomes paid subscribers.
+- Secondary demand goal, e.g. open-source repo visibility/community demand.
+- Current audience and later audience.
+- Language and market.
+- Strategic assets that should receive demand, such as a GitHub repo, docs, free tool, or comparison page.
 
-1. Normalize GSC query+page rows into:
-   - top non-brand queries by impressions,
-   - striking-distance terms, e.g. avg position 4-30 with meaningful impressions,
-   - page aggregates with top queries per page.
-2. Compare GSC terms with saved keyword tags/clusters. Saved tags are planning context, not proof of current rankings.
-3. Hydrate only the candidate cluster heads with keyword metrics; avoid spending credits on every long-tail variant unless the user asks for exhaustive research.
-4. Use live SERPs for page-type decisions:
-   - product/tool pages vs guides/listicles vs directories/forums,
-   - AI Overview or PAA presence,
-   - authority gap and competitor type.
-5. Prioritize existing page updates when GSC already shows impressions, then propose net-new pages for uncovered intent.
-6. Defer tempting high-volume clusters when KD/authority gap or intent mismatch makes them weaker than lower-volume product-led terms.
+These inputs change prioritization. A lower-volume, high-fit product/MCP/open-source query can outrank a higher-volume generic education query if it better supports conversion or strategic demand.
 
-## Recommended deliverable structure
+## Live data sources to pull
 
-- MCP/project/data status and date range.
-- Executive strategy in 2-4 bullets.
-- Current organic baseline from domain overview and GSC pages.
-- Striking-distance and high-impression query tables.
-- SERP/competitor read with domain types.
-- Prioritized content plan:
-  - P0 existing URL updates,
-  - P1 net-new pages,
-  - P2 deferred/support-only topics.
-- 6-8 week execution roadmap.
-- Measurement plan with starting GSC baseline and target movement.
-- Internal linking plan with exact/near-exact anchors.
-- Saved keyword tags/clusters to preserve.
-- “What not to do yet” to keep the strategy focused.
+Prefer OpenSEO MCP over manual exports:
 
-## File-writing convention
+1. `whoami` and `list_projects` to verify connection and pick the project.
+2. Search Console `dimensions: ['query','page']` for query-to-URL mapping, striking-distance terms, and cannibalization.
+3. Search Console `dimensions: ['page']` for current URL demand, CTR, and average position.
+4. `list_saved_keywords` for existing tags/clusters.
+5. `get_keyword_metrics` for volume, KD, CPC, intent, and trend data on candidate terms.
+6. `get_serp_results` for representative queries to validate page type and SERP format.
+7. `find_serp_competitors` for cross-query competitor patterns when market leadership matters.
 
-If the user asks to update the plan and no existing plan file is found, create `seo/<domain>/content-plan.md` in the repo or SEO workspace. Include enough source metrics that a future session can audit why priorities were chosen without re-running every paid query immediately.
+## Prioritization pattern
+
+Rank work in this order unless the data strongly says otherwise:
+
+1. Existing pages with Search Console impressions and clear paid-conversion intent.
+2. Existing pages or assets that support a strategic demand goal, such as open-source repo visibility.
+3. Existing pages that can bridge the stated audience into product usage, such as founder/DIY SEO guides.
+4. Net-new pages for proven saved clusters or live SERP opportunities.
+5. Generic high-volume education topics only when they can be made product-led or support a later cluster.
+
+## Output expectations
+
+A good plan should include:
+
+- MCP/data status and project used.
+- Business goals and audience assumptions.
+- Current Search Console baseline by page and important query.
+- Keyword metrics table with volume/KD/CPC/intent.
+- SERP and competitor read.
+- P0/P1/P2 roadmap with page-level briefs.
+- Internal-link plan, including links to strategic assets like GitHub repos.
+- Measurement plan tied to starting impressions/positions and conversion actions.
+
+## Pitfalls
+
+- Do not treat volume as the strategy. Paid-conversion fit and strategic visibility can matter more.
+- Do not ask for GSC CSV exports when OpenSEO MCP has Search Console access.
+- Do not bury user-supplied business goals in the intro only; use them to reorder priorities.
+- Do not recommend generic GEO/AEO or broad SEO education pages ahead of more defensible product-led pages unless the user explicitly wants awareness over conversion.
