@@ -61,11 +61,21 @@ name = "openseo"
 transport = "http"
 url = "__OPENSEO_URL__"
 
-# ── Runtime profile: extended thinking for deeper SEO reasoning ────────────
-# Assigned to agents.seo via `runtime_profile = "seo"` above. high/max engage
-# real reasoning budgets; native_thinking sends the provider's `thinking`
-# parameter rather than just a prompt nudge. (Reasoning improves answers but
-# stays hidden from chat output by design.)
+# ── Runtime profile: action budgets + extended thinking for SEO work ───────
+# Assigned to agents.seo via `runtime_profile = "seo"`. The defaults are tuned
+# for tiny assistants (20 actions/hr, $5/day), which an SEO research turn blows
+# past immediately — so raise them to generous-but-finite ceilings. These are
+# still real guardrails (a runaway loop stops), just not hair-trigger ones.
+# NOTE: this [runtime_profiles.seo] table must come *before* its .thinking
+# subtable below (TOML can't reopen a parent table after a child header).
+[runtime_profiles.seo]
+max_actions_per_hour   = 1000   # default is only 20 — far too low for research
+max_tool_iterations    = 100    # tool calls allowed within a single turn
+max_cost_per_day_cents = 5000   # $50/day spend guardrail (Codex sub has no marginal cost)
+
+# Extended thinking: high/max engage real reasoning budgets; native_thinking
+# sends the provider's `thinking` parameter rather than just a prompt nudge.
+# (Reasoning improves answers but stays hidden from chat output by design.)
 [runtime_profiles.seo.thinking]
 default_level   = "high"
 native_thinking = true
