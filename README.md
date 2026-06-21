@@ -56,11 +56,18 @@ bin/seoclaw agent -a seo
 
 The `bin/seoclaw` wrapper sets `ZEROCLAW_CONFIG_DIR=~/.seoclaw` (isolated from any
 stock `~/.zeroclaw` on the machine) and forwards to the real `zeroclaw` binary.
-Equivalent without the wrapper:
+For interactive `agent` runs it also defaults to a persistent session file
+(`~/.seoclaw/seo-session.json`) so the conversation survives a restart — which
+you need whenever you change config. Equivalent without the wrapper:
 
 ```bash
-ZEROCLAW_CONFIG_DIR=~/.seoclaw zeroclaw agent -a seo
+ZEROCLAW_CONFIG_DIR=~/.seoclaw zeroclaw agent -a seo --session-state-file ~/.seoclaw/seo-session.json
 ```
+
+Inside the REPL: `/exit` or `/quit` to leave (Ctrl-D also works), `/help` for
+commands, `/clear` to wipe the conversation, `/think:<level>` to change
+reasoning depth on the fly. Config edits are picked up on the next launch, not
+mid-session.
 
 ## Layout
 

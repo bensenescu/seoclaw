@@ -10,4 +10,15 @@ ZEROCLAW_CONFIG_DIR="${ZEROCLAW_CONFIG_DIR:-$HOME/.seoclaw}"
 ZEROCLAW_DATA_DIR="${ZEROCLAW_DATA_DIR:-$ZEROCLAW_CONFIG_DIR/data}"
 export ZEROCLAW_CONFIG_DIR ZEROCLAW_DATA_DIR
 
+# For interactive `agent` runs, default to a persistent session file so a
+# restart (needed to pick up config changes) doesn't drop the conversation.
+# Only inject for the `agent` subcommand — other subcommands reject the flag —
+# and only when the user didn't pass their own.
+if [ "${1:-}" = "agent" ]; then
+  case " $* " in
+    *--session-state-file*) : ;;  # respect a user-supplied path
+    *) set -- "$@" --session-state-file "$ZEROCLAW_CONFIG_DIR/seo-session.json" ;;
+  esac
+fi
+
 exec zeroclaw "$@"
