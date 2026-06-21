@@ -1,101 +1,97 @@
 # seoclaw
 
-A claw that handles SEO for your website.
+An opinionated SEO agent you can **clone and run** on top of
+[Hermes Agent](https://github.com/NousResearch/hermes-agent). It ships a tuned
+config, an SEO persona, the OpenSEO MCP integration, and a bundle of SEO skills
+(keyword research, clustering, competitor & competitive-landscape analysis, link
+prospecting, coaching, onboarding) — so you don't have to configure any of it.
 
-**seoclaw is a configuration overlay on top of [ZeroClaw](https://github.com/zeroclaw-labs/zeroclaw).**
-We don't fork ZeroClaw and we don't patch it. We install the unmodified upstream
-binary (pinned in [`.zeroclaw-version`](.zeroclaw-version)) and hand it a
-ready-made config plus a bundle of SEO skills. Think of ZeroClaw as a base image
-and this repo as the layer on top.
+This repo is a **configuration overlay**, not a fork: it runs the unmodified
+`hermes` binary and just hands it a ready-made config + skills.
 
-## What's ours vs. what's ZeroClaw
-
-| Ours (this repo) | ZeroClaw (upstream, unmodified) |
-| --- | --- |
-| `config/seoclaw.toml.tmpl` — the agent, provider, risk profile, MCP + skill wiring | The runtime that reads that config |
-| `skills/seo/` — the OpenSEO skill bundle | The skill loader that runs them |
-| `setup.sh` — the simplified SEO onboarding | `zeroclaw quickstart` (we don't use it) |
-| `install.sh` — installs the pinned binary, then applies our overlay | The `zeroclaw` binary it installs |
-| `bin/seoclaw` — light-touch branded wrapper | The `zeroclaw` command it forwards to |
-
-If it's behavior, it's upstream. If it's SEO content or wiring, it's here. The
-only coupling point is ZeroClaw's config schema, which is a documented, validated,
-stable interface — so we pin a version and bump it deliberately.
-
-## Install
+## Quick start
 
 ```bash
-./install.sh
+# 1. Clone
+git clone <repo-url> seoclaw
+cd seoclaw
+
+# 2. Install Hermes (skip if you already have it)
+curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
+
+# 3. One-time sign-in: OpenAI Codex (offers to import an existing ~/.codex/auth.json)
+bin/seoclaw auth add openai-codex
+
+# 4. Run it
+bin/seoclaw
 ```
 
-This:
-1. Installs the pinned upstream ZeroClaw binary (`v0.8.1`) — skipped if already present.
-2. Runs `setup.sh`, which asks the **two** things an SEO user needs.
-
-Already have the pinned binary? `./install.sh --skip-zeroclaw`.
-
-## Onboarding (the simplified flow)
-
-`setup.sh` replaces ZeroClaw's full `quickstart`. It asks only:
-
-1. **OpenSEO MCP endpoint URL** (the only SEO integration).
-2. **OpenAI Codex subscription login** — the only provider. Codex sub auth uses a
-   stored login profile, **not** an API key: setup runs
-   `zeroclaw auth login --model-provider openai-codex` (or imports an existing
-   `~/.codex/auth.json`). The config sets `requires_openai_auth = true` so the
-   runtime reads that login. See ZeroClaw's README "OpenAI Codex subscription" note.
-
-No questions about memory, channels, or the other ~20 providers — they're simply
-never surfaced because we ship a complete config instead of generating one.
-
-## Run
+That's the whole setup. The first time you ask for SEO data, OpenSEO runs a
+one-time in-conversation OAuth (a browser approval). If an OpenSEO call ever
+returns `401 Unauthorized`, complete the login explicitly:
 
 ```bash
-bin/seoclaw agent -a seo
+bin/seoclaw mcp login openseo   # run interactively, approve in the browser
 ```
 
-The `bin/seoclaw` wrapper sets `ZEROCLAW_CONFIG_DIR=~/.seoclaw` (isolated from any
-stock `~/.zeroclaw` on the machine) and forwards to the real `zeroclaw` binary.
-For interactive `agent` runs it also defaults to a persistent session file
-(`~/.seoclaw/seo-session.json`) so the conversation survives a restart — which
-you need whenever you change config. Equivalent without the wrapper:
+## How it works (no magic)
 
-```bash
-ZEROCLAW_CONFIG_DIR=~/.seoclaw zeroclaw agent -a seo --session-state-file ~/.seoclaw/seo-session.json
-```
+- **`bin/seoclaw`** is a ~25-line launcher. It points `HERMES_HOME` at a
+  git-ignored `./.hermes-home/`, seeds your committed `config.yaml` + `SOUL.md`
+  into it, then `exec`s stock `hermes`. You never set an env var, and it works
+  from any directory.
+- **All runtime state** — auth tokens, session history, caches, the synced
+  bundled-skill library — lives in `./.hermes-home/` and is git-ignored.
+  Combined with an allowlist `.gitignore`, nothing you run can be committed by
+  accident.
+- **The committed scaffold is just** `config.yaml`, `SOUL.md`, and `seo-skills/`.
+  Edit a `seo-skills/**/SKILL.md` and relaunch — it's picked up live. If you edit
+  `config.yaml` or `SOUL.md`, refresh the seeded copy:
+  `rm .hermes-home/config.yaml .hermes-home/SOUL.md` then re-run `bin/seoclaw`.
+- **Always launch via `bin/seoclaw`, not plain `hermes`** — plain `hermes` uses
+  `~/.hermes` and won't load this repo's config, persona, or skills.
 
-Inside the REPL: `/exit` or `/quit` to leave (Ctrl-D also works), `/help` for
-commands, `/clear` to wipe the conversation, `/think:<level>` to change
-reasoning depth on the fly. Config edits are picked up on the next launch, not
-mid-session.
+### Make it yours
+
+It's a scaffold — fork it and edit:
+
+- **Model / provider** — change the two `model:` lines in `config.yaml`, or run
+  `bin/seoclaw model`. (Default is the OpenAI Codex subscription, `gpt-5.5`.)
+- **Persona** — edit `SOUL.md`.
+- **Skills** — add or edit folders under `seo-skills/` (each is a `SKILL.md`).
+- **Approvals** — `approvals.mode` in `config.yaml` (`manual` / `smart` / `off`).
 
 ## Layout
 
 ```
 seoclaw/
-├── .zeroclaw-version          # pinned upstream version we certify against
-├── install.sh                 # 1) install pinned zeroclaw  2) run setup
-├── setup.sh                   # SEO-only onboarding (renders config + Codex login)
-├── bin/seoclaw                # branded wrapper around `zeroclaw`
-├── config/
-│   └── seoclaw.toml.tmpl       # config template (rendered into ~/.seoclaw/config.toml)
-└── skills/seo/                # OpenSEO skill bundle (loaded by the agent)
-    ├── keyword-research/
-    ├── keyword-clustering/
-    ├── competitor-analysis/
-    ├── competitive-landscape/
-    ├── link-prospecting/
-    ├── seo-coach/
-    └── onboarding-checklist/
+├── bin/seoclaw          # launcher: sets HERMES_HOME, seeds the home, runs hermes
+├── config.yaml          # the Hermes config (provider, agent, skills, OpenSEO MCP)
+├── SOUL.md              # the SEO assistant persona
+├── seo-skills/          # the SEO skill bundle (loaded via skills.external_dirs)
+│   ├── keyword-research/
+│   ├── keyword-clustering/
+│   ├── competitor-analysis/
+│   ├── competitive-landscape/
+│   ├── link-prospecting/
+│   ├── seo-coach/
+│   └── onboarding-checklist/
+├── .gitignore           # allowlist: commits the scaffold, ignores all runtime
+└── .hermes-home/        # (git-ignored) Hermes' config copy, auth, sessions, caches
 ```
 
-## Upgrading ZeroClaw
+## Optional: always-on scheduled checks
 
-Bump `.zeroclaw-version`, re-run `./install.sh`, and re-test. Because our only
-dependency on upstream is the config schema, upgrades are low-risk; check the
-ZeroClaw changelog for any config-schema changes between versions.
+seoclaw doesn't auto-create cron jobs (they're per-user runtime state). To add
+recurring SEO checks yourself, run the always-on gateway and schedule tasks:
+
+```bash
+bin/seoclaw gateway                                   # always-on (messaging + cron host)
+bin/seoclaw cron create "every 1d" "Check Search Console for pages that dropped in clicks or position since yesterday and flag the biggest losers."
+bin/seoclaw cron list
+```
 
 ## License
 
-MIT — see [LICENSE](LICENSE). ZeroClaw is dual-licensed MIT OR Apache-2.0; the
-"ZeroClaw" name and logo are trademarks of ZeroClaw Labs.
+MIT — see [LICENSE](LICENSE). Hermes Agent is MIT-licensed; the "Hermes" name
+and logo are trademarks of Nous Research.

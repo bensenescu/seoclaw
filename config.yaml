@@ -1,0 +1,41 @@
+# seoclaw configuration — read by stock Hermes Agent (unmodified).
+# `bin/seoclaw` seeds a copy of this into ./.hermes-home/ on first run; Hermes
+# reads (and may migrate) THAT copy, so this committed file stays pristine.
+# Schema: https://hermes-agent.nousresearch.com/docs/user-guide/configuration
+
+# ── Provider: OpenAI Codex subscription (OAuth, not an api_key) ─────────────
+# One-time: `bin/seoclaw auth add openai-codex` stores the login under
+# ./.hermes-home/auth.json (offers to import an existing ~/.codex/auth.json).
+# Want a different provider/model? Change these two lines, or run
+# `bin/seoclaw model`.
+model:
+  provider: "openai-codex"
+  default: "gpt-5.5"
+
+# ── Agent behavior: tuned for multi-lookup SEO research turns ──────────────
+agent:
+  reasoning_effort: "high"   # engage real reasoning; hidden from chat output
+  max_turns: 100             # room for research that sweeps many OpenSEO lookups
+
+# ── Security: supervised — prompt before risky actions ─────────────────────
+# A hardline blocklist always refuses unconditionally destructive commands.
+# Use "smart" to let an auxiliary model auto-clear low-risk ones, or "off".
+approvals:
+  mode: manual
+
+# ── Skills: the SEO bundle shipped IN THIS REPO ────────────────────────────
+# Relative entries resolve against HERMES_HOME (= ./.hermes-home), so
+# "../seo-skills" → <repo>/seo-skills, the committed read-only bundle. It is
+# deliberately NOT named "skills": that is Hermes' own local skills dir, and an
+# external entry equal to it is dropped. Edit a SKILL.md and just relaunch.
+skills:
+  external_dirs:
+    - "../seo-skills"
+
+# ── Integration: OpenSEO MCP (the only SEO integration) ────────────────────
+# Remote HTTP server. OpenSEO authenticates in-conversation via OAuth on the
+# first tool call — no token is stored in this file.
+mcp_servers:
+  openseo:
+    url: "https://app.openseo.so/mcp"
+    auth: oauth

@@ -1,24 +1,36 @@
-#!/bin/sh
-# seoclaw — light-touch branded wrapper around the stock `zeroclaw` binary.
+#!/usr/bin/env bash
+# seoclaw — thin launcher around stock Hermes Agent.
 #
-# We do NOT rename or rebuild zeroclaw. This shim just pins the config/data dir
-# to seoclaw's namespace and forwards every argument to upstream zeroclaw, so
-# `seoclaw agent -a seo` works without the user remembering to export env vars.
-set -eu
+# Why this wrapper exists (it's the only script in the repo): Hermes reads its
+# config + persona from $HERMES_HOME and writes ALL runtime state there too
+# (auth tokens, session DBs, caches, the synced bundled-skill library). We point
+# HERMES_HOME at a git-ignored dir INSIDE the checkout and seed it from the
+# committed scaffold, so that:
+#   - the committed config.yaml / SOUL.md are never mutated by Hermes' on-launch
+#     config migration (it rewrites the copy in .hermes-home/, which is ignored);
+#   - every secret and session DB stays inside one git-ignored path — nothing you
+#     run can be committed by accident;
+#   - you never have to remember to export HERMES_HOME, and it works from any cwd.
+set -euo pipefail
 
-ZEROCLAW_CONFIG_DIR="${ZEROCLAW_CONFIG_DIR:-$HOME/.seoclaw}"
-ZEROCLAW_DATA_DIR="${ZEROCLAW_DATA_DIR:-$ZEROCLAW_CONFIG_DIR/data}"
-export ZEROCLAW_CONFIG_DIR ZEROCLAW_DATA_DIR
+# Repo root = parent of this script's dir, resolved regardless of where you run it.
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." >/dev/null 2>&1 && pwd)"
 
-# For interactive `agent` runs, default to a persistent session file so a
-# restart (needed to pick up config changes) doesn't drop the conversation.
-# Only inject for the `agent` subcommand — other subcommands reject the flag —
-# and only when the user didn't pass their own.
-if [ "${1:-}" = "agent" ]; then
-  case " $* " in
-    *--session-state-file*) : ;;  # respect a user-supplied path
-    *) set -- "$@" --session-state-file "$ZEROCLAW_CONFIG_DIR/seo-session.json" ;;
-  esac
-fi
+export HERMES_HOME="$REPO_ROOT/.hermes-home"
+mkdir -p "$HERMES_HOME"
 
-exec zeroclaw "$@"
+# Seed the committed scaffold in if missing. We DON'T overwrite an existing copy
+# (Hermes may have migrated it). To pick up edits to the committed config.yaml or
+# SOUL.md, delete the seeded copy and relaunch:
+#   rm .hermes-home/config.yaml .hermes-home/SOUL.md && bin/seoclaw
+# (Edits to seo-skills/**/SKILL.md are picked up live — they're read from the repo.)
+[ -f "$HERMES_HOME/config.yaml" ] || cp "$REPO_ROOT/config.yaml" "$HERMES_HOME/config.yaml"
+[ -f "$HERMES_HOME/SOUL.md" ]     || cp "$REPO_ROOT/SOUL.md"     "$HERMES_HOME/SOUL.md"
+
+# Opt out of bundled-skill seeding so Hermes never dumps its bundled library into
+# .hermes-home/skills. Idempotent; re-asserted each launch so an upgrade can't
+# re-enable it. (Marker name verified in tools/skills_sync.py.)
+: > "$HERMES_HOME/.no-bundled-skills"
+
+exec hermes "$@"

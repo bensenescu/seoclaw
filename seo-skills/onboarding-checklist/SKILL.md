@@ -15,6 +15,8 @@ Be friendly, practical, and structured. Ask questions in small batches. Explain 
 
 ## Checklist
 
+Reference for seoclaw/Hermes MCP auth details: `references/hermes-openseo-mcp-oauth.md`.
+
 ### 1. Pick a working folder
 
 Suggest that the user choose or create a local folder for SEO work, for example:
@@ -39,6 +41,8 @@ seo-workspace/
 ```
 
 Do not create folders unless the user asks. If file tools are available and the user asks, create a simple structure and a short `README.md` with the current goals and known sites.
+
+When the user says “set up this workspace” while already inside a repo or project folder, treat that as permission to create a repo-local SEO workspace rather than asking again. Prefer `seo/<domain>/` (for example `seo/openseo.so/`) so SEO notes live beside related source/config work without mixing raw exports into the root. Add a local `.gitignore` for raw GSC/crawl/keyword CSV/XLSX artifacts unless the user explicitly wants those committed.
 
 ### 2. Collect website scope
 
@@ -94,6 +98,29 @@ After the user has described the company, website, goals, and positioning, check
 
 Do not run research tools just to test connectivity; `whoami` and `list_projects` are enough.
 
+#### Hermes/seoclaw MCP setup pitfall
+
+When onboarding happens inside the seoclaw/Hermes wrapper, verify both the server URL and OAuth mode. A config that only has `url: https://app.openseo.so/mcp` can list as enabled but fail with `401 Unauthorized`; the OpenSEO hosted MCP needs OAuth enabled and a one-time interactive login.
+
+Expected config shape:
+
+```yaml
+mcp_servers:
+  openseo:
+    url: https://app.openseo.so/mcp
+    auth: oauth
+```
+
+Useful verification commands from the seoclaw repo:
+
+```bash
+./bin/seoclaw mcp list
+./bin/seoclaw mcp test openseo
+./bin/seoclaw mcp login openseo   # must be run interactively for first OAuth approval
+```
+
+If a non-interactive environment cannot complete OAuth, stop after fixing the config and ask the user to run the login command in their real terminal, then restart/fresh-session before expecting MCP tools to appear.
+
 ### 6. Request Google Search Console export
 
 Ask the user to export a CSV from Google Search Console and place it in the SEO working folder.
@@ -129,6 +156,8 @@ Ask for or discover:
 - Linkable assets such as studies, templates, tools, datasets, calculators, or original opinions
 
 ### 8. Recommend first workflow
+
+If you created a workspace, include a concise verification note before recommending the next workflow: exact path created, key files/folders written, live/site sources checked, and whether the OpenSEO MCP project and GSC exports are ready. Do not imply MCP access or GSC data exists unless a tool call or visible file confirmed it. For a concrete repo-local setup pattern, see `references/repo-local-seo-workspace.md`.
 
 After intake, recommend one next OpenSEO workflow:
 

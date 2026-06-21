@@ -1,0 +1,16 @@
+# Allowlist style: ignore EVERYTHING, then re-include only the committed
+# scaffold. This is airtight by construction — any file Hermes writes into the
+# checkout (the .hermes-home/ runtime dir, SEO research output you generate
+# while testing, future Hermes artifacts we've never heard of) is ignored by
+# default, so secrets and session data can never be committed by a stray
+# `git add -A`.
+/*
+
+# Re-include the committed scaffold (and nothing else).
+!/bin/
+!/seo-skills/
+!/config.yaml
+!/SOUL.md
+!/README.md
+!/LICENSE
+!/.gitignore
