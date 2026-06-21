@@ -1,0 +1,55 @@
+# seoclaw configuration overlay  (THIS FILE IS OURS)
+# ---------------------------------------------------------------------------
+# `setup.sh` renders this template into  $ZEROCLAW_CONFIG_DIR/config.toml,
+# substituting the __PLACEHOLDERS__ below. The program that READS this file is
+# upstream ZeroClaw, unmodified and pinned in .zeroclaw-version — we don't fork
+# it, we just hand it a config. Everything seoclaw-specific lives in this repo.
+#
+# Schema reference: https://docs.zeroclawlabs.ai/master/en/reference/config.html
+# ---------------------------------------------------------------------------
+
+# ── Provider: OpenAI Codex subscription (the only provider) ────────────────
+# Codex sub auth is NOT an api_key. `setup.sh` runs
+#   zeroclaw auth login --model-provider openai-codex
+# which stores the Codex login on disk; `requires_openai_auth = true` tells the
+# runtime to read that stored login instead of looking for a key here.
+[providers.models.openai.coding]
+model = "gpt-5-codex"
+wire_api = "responses"
+requires_openai_auth = true
+
+# ── Agent: the SEO claw ────────────────────────────────────────────────────
+# `zeroclaw agent -a seo`  (or `seoclaw agent -a seo` via the bin/ wrapper)
+[agents.seo]
+model_provider = "openai.coding"
+risk_profile   = "supervised"
+skill_bundles  = ["seo"]
+mcp_bundles    = ["seo"]
+
+# ── Risk profile: supervised (medium-risk needs approval, high-risk blocked) ─
+[risk_profiles.supervised]
+level                            = "supervised"
+workspace_only                   = true
+require_approval_for_medium_risk = true
+block_high_risk_commands         = true
+# OpenSEO is read-mostly research. Uncomment to stop the agent prompting for
+# approval on every OpenSEO lookup once you've confirmed the tool names:
+#   auto_approve = ["openseo__get_keyword_metrics", "openseo__research_keywords"]
+# or, to approve the whole server, "openseo__*" / "*".
+
+# ── Skills: the OpenSEO skill bundle shipped IN THIS REPO ──────────────────
+# Points straight at this checkout's skills/seo dir — edit a SKILL.md, restart
+# the agent, and it's picked up. No copy/sync step.
+[skill_bundles.seo]
+directory = "__SKILLS_DIR__"
+
+# ── Integration: OpenSEO MCP (the only SEO integration) ────────────────────
+# OpenSEO authenticates in-conversation via its own `authenticate` tool the
+# first time the agent calls it — no token is stored in this file.
+[mcp_bundles.seo]
+servers = ["openseo"]
+
+[[mcp.servers]]
+name = "openseo"
+transport = "http"
+url = "__OPENSEO_URL__"

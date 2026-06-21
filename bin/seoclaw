@@ -1,0 +1,13 @@
+#!/bin/sh
+# seoclaw — light-touch branded wrapper around the stock `zeroclaw` binary.
+#
+# We do NOT rename or rebuild zeroclaw. This shim just pins the config/data dir
+# to seoclaw's namespace and forwards every argument to upstream zeroclaw, so
+# `seoclaw agent -a seo` works without the user remembering to export env vars.
+set -eu
+
+ZEROCLAW_CONFIG_DIR="${ZEROCLAW_CONFIG_DIR:-$HOME/.seoclaw}"
+ZEROCLAW_DATA_DIR="${ZEROCLAW_DATA_DIR:-$ZEROCLAW_CONFIG_DIR/data}"
+export ZEROCLAW_CONFIG_DIR ZEROCLAW_DATA_DIR
+
+exec zeroclaw "$@"
