@@ -26,23 +26,24 @@ requires_openai_auth = true
 # `zeroclaw agent -a seo`  (or `seoclaw agent -a seo` via the bin/ wrapper)
 [agents.seo]
 model_provider  = "openai.coding"
-risk_profile    = "supervised"
+risk_profile    = "yolo"         # full autonomy — see [risk_profiles.yolo] below
 runtime_profile = "seo"          # enables extended thinking (see [runtime_profiles.seo])
 skill_bundles   = ["seo"]
 mcp_bundles     = ["seo"]
 
-# ── Risk profile: supervised (medium-risk needs approval, high-risk blocked) ─
-[risk_profiles.supervised]
-level                            = "supervised"
-workspace_only                   = true
-require_approval_for_medium_risk = true
-block_high_risk_commands         = true
-# Subagents: auto-approve `spawn_subagent` so the agent can delegate research
-# to ephemeral child agents without an approval prompt each time. (Subagents
-# inherit this same profile, so their own tool calls are still gated.)
-auto_approve = ["spawn_subagent"]
-# To also stop prompts on OpenSEO lookups, add the tool names you use, e.g.:
-#   auto_approve = ["spawn_subagent", "openseo__get_keyword_metrics", "openseo__research_keywords"]
+# ── Risk profile: YOLO (full autonomy) ─────────────────────────────────────
+# ⚠️  No approval gates, no command denylist, no workspace scoping, sandbox OFF.
+# The agent can run ANY shell command and touch ANY path without asking. Only
+# run this on a machine you don't mind it breaking. To return to a safe posture,
+# set `level = "supervised"`, `workspace_only = true`, `block_high_risk_commands
+# = true`, and drop `allowed_commands = ["*"]`.
+[risk_profiles.yolo]
+level                            = "full"   # no tool-call approval prompts at all
+workspace_only                   = false    # not confined to the agent workspace
+allowed_commands                 = ["*"]    # empty list = deny-all; "*" = allow everything
+require_approval_for_medium_risk = false
+block_high_risk_commands         = false
+sandbox_enabled                  = false
 
 # ── Skills: the OpenSEO skill bundle shipped IN THIS REPO ──────────────────
 # Points straight at this checkout's skills/seo dir — edit a SKILL.md, restart
