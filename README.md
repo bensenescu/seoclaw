@@ -1,12 +1,23 @@
 # seoclaw
 
-An opinionated SEO agent for [Hermes Agent](https://github.com/NousResearch/hermes-agent).
+**Your autonomous SEO teammate.**
 
-It's a **Hermes profile distribution**: install it with one command and you get a
-tuned SEO persona, the OpenSEO MCP integration, and a bundle of SEO skills
-(keyword research, clustering, competitor & competitive-landscape analysis, link
-prospecting, coaching, onboarding) — as an isolated profile that never touches
-your default Hermes setup.
+seoclaw is an opinionated SEO agent that does the work: keyword research,
+competitor analysis, link prospecting, and keeping an eye on Search Console. Talk
+to it in your terminal — or from Telegram, Slack, or Discord — and leave it
+running so it works on a schedule while you sleep.
+
+It's built on [Hermes Agent](https://github.com/NousResearch/hermes-agent) and
+ships ready to go: a tuned SEO persona, live SEO data via OpenSEO, and a bundle
+of SEO skills. No setup beyond two sign-ins.
+
+## What it does
+
+- **Keyword research & clustering** — find opportunities and map them to pages
+- **Competitor & landscape analysis** — see who's winning and where your gaps are
+- **Link prospecting** — surface link opportunities and draft outreach
+- **Search Console watch** — catch ranking drops and striking-distance wins
+- **Coaching & onboarding** — walks you through strategy and setup
 
 ## Install
 
@@ -14,103 +25,51 @@ your default Hermes setup.
 # 1. Install Hermes (skip if you already have it)
 curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
 
-# 2. Install the seoclaw profile
+# 2. Install seoclaw
 hermes profile install github.com/bensenescu/seoclaw --alias
 
-# 3. One-time sign-ins (stored per-profile, never committed)
-hermes -p seoclaw auth add openai-codex   # the model: OpenAI Codex (imports ~/.codex/auth.json if present)
-hermes -p seoclaw mcp login openseo       # the SEO data: OpenSEO — approve in the browser
+# 3. Sign in (one-time, stored privately on your machine)
+hermes -p seoclaw auth add openai-codex   # the model — OpenAI Codex
+hermes -p seoclaw mcp login openseo       # your SEO data — OpenSEO
 
-# 4. Run it — `--alias` created a `seoclaw` command:
+# 4. Talk to it
 seoclaw
 ```
 
-**No `HERMES_HOME`, no env vars.** The profile lives at
-`~/.hermes/profiles/seoclaw/`, fully isolated from your default `~/.hermes`.
+It runs as its own isolated profile — no env vars to manage, and it won't touch
+the rest of your Hermes setup.
 
-Don't want the alias? Either make it your sticky default
-(`hermes profile use seoclaw`, then just run `hermes`), or pass `-p seoclaw` on
-each command.
+## Put it on autopilot
 
-## Updating
+Leave it running and it works on a schedule, pinging you on your chat app:
 
 ```bash
-hermes profile update seoclaw   # pulls new persona/skills; keeps your config, auth, and history
+seoclaw gateway   # keep it on; reach it from Telegram, Slack, Discord…
+seoclaw cron create "every 1d" "Flag Search Console pages that dropped in clicks or position since yesterday."
+seoclaw cron list
 ```
 
-`config.yaml` is preserved on update (so your model tweaks survive); `SOUL.md`
-and `skills/` are refreshed from the distribution. Your auth, memories, and
-sessions are never touched.
+## Customize
 
-## What's inside
-
-```
-seoclaw/
-├── distribution.yaml   # profile manifest (name, version, requirements)
-├── config.yaml         # model (OpenAI Codex / gpt-5.5), reasoning, approvals, OpenSEO MCP
-├── SOUL.md             # the SEO assistant persona
-└── skills/             # the SEO skill bundle
-    ├── keyword-research/
-    ├── keyword-clustering/
-    ├── competitor-analysis/
-    ├── competitive-landscape/
-    ├── link-prospecting/
-    ├── seo-coach/
-    └── onboarding-checklist/
-```
+Fork it and edit `config.yaml` (model, approvals), `SOUL.md` (persona), or
+`skills/`, then re-install your fork. Or run `seoclaw model` to switch models.
 
 ## Develop & test locally
 
-Editing the profile (`config.yaml`, `SOUL.md`, or `skills/`)? Install it straight
-from your clone — no push needed — under a throwaway name so it doesn't collide
-with a real `seoclaw` install:
+Install your working tree as a separate test profile — no push needed:
 
 ```bash
-# From the repo root: install the working tree as a test profile.
-# The source is `.` (this folder); --name keeps it separate from `seoclaw`.
-hermes profile install . --name seoclaw-dev
-
-# Sign in once (auth is per-profile)
+hermes profile install . --name seoclaw-dev    # `.` = this repo; --name keeps it separate
 hermes -p seoclaw-dev auth add openai-codex
 hermes -p seoclaw-dev mcp login openseo
+hermes -p seoclaw-dev                           # chat
 
-# Try it
-hermes -p seoclaw-dev mcp list      # openseo should show ✓ enabled
-hermes -p seoclaw-dev skills list   # the 7 SEO skills, enabled
-hermes -p seoclaw-dev               # chat
-
-# After editing files, pull your changes into the test profile:
-hermes profile update seoclaw-dev                 # refreshes SOUL.md + skills/
-hermes profile update seoclaw-dev --force-config  # also re-copy config.yaml (preserved by default)
-
-# Tear it down when done
-hermes profile delete seoclaw-dev --yes
+hermes profile update seoclaw-dev               # pull your edits in (add --force-config for config.yaml)
+hermes profile delete seoclaw-dev --yes         # tear down
 ```
 
-`profile install` records `.` as the source, so `profile update` re-pulls from
-your working tree — the edit → `update` → test loop needs no commit or push.
-Note `config.yaml` is preserved across updates (so local model tweaks survive);
-pass `--force-config` when you want your edited `config.yaml` copied in too.
-
-## Make it yours
-
-It's a scaffold — fork the repo and edit `config.yaml`, `SOUL.md`, or `skills/`,
-then re-install your fork (`hermes profile install github.com/<you>/seoclaw --alias`).
-For quick tweaks to a live install, edit the copy under
-`~/.hermes/profiles/seoclaw/` directly.
-
-- **Model / provider** — the `model:` lines in `config.yaml`, or run `seoclaw model`.
-- **Persona** — `SOUL.md`.
-- **Skills** — add or edit folders under `skills/` (each is a `SKILL.md`).
-- **Approvals** — `approvals.mode` in `config.yaml` (`manual` / `smart` / `off`).
-
-## Optional: always-on scheduled checks
-
-```bash
-seoclaw gateway                                  # always-on (messaging + cron host)
-seoclaw cron create "every 1d" "Check Search Console for pages that dropped in clicks or position since yesterday and flag the biggest losers."
-seoclaw cron list
-```
+`profile update` re-pulls from your working tree, so the edit → test loop needs
+no commit or push.
 
 ## License
 
