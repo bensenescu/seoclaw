@@ -12,13 +12,13 @@ as enabled while still being unusable if OAuth login hasn't been completed.
   when `auth: oauth` is set but the first-time login hasn't been done.
 
 And if `hermes` reports `Server 'openseo' not found in config` or
-`No MCP servers configured`, the issue is upstream of OAuth: `HERMES_HOME` isn't
-pointed at the seoclaw repo. Run `export HERMES_HOME="$PWD"` from the repo root
-(or `direnv allow`) and retry.
+`No MCP servers configured`, the issue is upstream of OAuth: the command isn't
+running against the seoclaw profile. Use the `seoclaw` alias, prefix with
+`-p seoclaw`, or run `hermes profile use seoclaw` first, then retry.
 
 ## Correct config
 
-The repo's `config.yaml` already ships this shape — keep it:
+The seoclaw profile's `config.yaml` already ships this shape — keep it:
 
 ```yaml
 mcp_servers:
@@ -29,11 +29,11 @@ mcp_servers:
 
 ## Verification flow
 
-From the seoclaw repo, with `HERMES_HOME` set:
+Against the seoclaw profile:
 
 ```bash
-hermes mcp list
-hermes mcp test openseo
+seoclaw mcp list
+seoclaw mcp test openseo
 ```
 
 If OAuth tokens are missing, complete the login interactively:

@@ -1,16 +1,19 @@
-# Allowlist style: ignore EVERYTHING, then re-include only the committed
-# scaffold. This is airtight by construction — any file Hermes writes into the
-# checkout (the .hermes-home/ runtime dir, SEO research output you generate
-# while testing, future Hermes artifacts we've never heard of) is ignored by
-# default, so secrets and session data can never be committed by a stray
-# `git add -A`.
+# Allowlist style: ignore EVERYTHING, then re-include only the distribution
+# scaffold. This repo is a profile distribution — `hermes profile install`
+# copies these files into ~/.hermes/profiles/seoclaw/. Ignoring everything else
+# by default means no stray runtime/secret file can ever be committed.
 /*
 
-# Re-include the committed scaffold (and nothing else).
-!/seo-skills/
-!/.envrc
+# Re-include the distribution scaffold (and nothing else).
+!/skills/
+!/distribution.yaml
 !/config.yaml
 !/SOUL.md
 !/README.md
 !/LICENSE
 !/.gitignore
+
+# ...but never the runtime files Hermes writes inside skills/ at use time
+# (skill-usage tracking). These are per-user state, not distribution content.
+.usage.json
+.usage.json.lock

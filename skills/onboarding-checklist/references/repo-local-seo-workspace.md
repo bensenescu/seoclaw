@@ -16,7 +16,7 @@ Example:
 seo/openseo.so/
 ```
 
-This keeps SEO strategy and exports near the site/product work without mixing them into the repo root.
+This keeps SEO strategy, briefs, and decision logs near the site/product work without mixing them into the repo root.
 
 ## Starter structure
 
@@ -25,7 +25,6 @@ seo/<domain>/
   README.md
   intake.md
   .gitignore
-  gsc/
   keywords/
   competitors/
   content/
@@ -38,8 +37,7 @@ seo/<domain>/
 
 - `README.md`: setup checklist, sources checked, positioning notes, working assumptions, next workflows.
 - `intake.md`: goals, audience, competitors, positioning boundaries, do-not-target notes.
-- `gsc/README.md`: expected Search Console export names and how the data will be used.
-- `keywords/README.md`: seed themes and later keyword exports/clusters.
+- `keywords/README.md`: seed themes, saved-keyword tags, and later keyword clusters.
 - `competitors/README.md`: competitor/substitute list and analysis expectations.
 - `content/README.md`: content inventory, page-to-keyword maps, briefs, refresh notes.
 - `outreach/README.md`: linkable assets, prospecting angles, outreach drafts.
@@ -48,12 +46,9 @@ seo/<domain>/
 
 ## Local git hygiene
 
-Add a workspace-local `.gitignore` to keep raw SEO exports local by default:
+Add a workspace-local `.gitignore` to keep raw crawl/report artifacts local by default:
 
 ```gitignore
-gsc/*.csv
-gsc/*.tsv
-gsc/*.xlsx
 reports/*.csv
 reports/*.xlsx
 site-inventory/*.csv
@@ -75,5 +70,5 @@ Before finalizing, verify with file listing/readback and git status when availab
 - key files created
 - live sources checked, if any
 - MCP/project status
-- whether GSC exports are present
+- whether OpenSEO MCP and Search Console MCP data were confirmed
 - one recommended next workflow

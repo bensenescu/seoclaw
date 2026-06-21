@@ -37,7 +37,7 @@ Good starting points:
 
 ## What each workflow does
 
-- `onboarding-checklist`: sets up the workspace, verifies MCP, captures goals, positioning, and GSC exports.
+- `onboarding-checklist`: sets up the workspace, verifies MCP, captures goals and positioning, and confirms live OpenSEO/Search Console data access.
 - `keyword-research`: finds search opportunities from seed topics and evaluates volume, difficulty, CPC, intent, and SERPs.
 - `keyword-clustering`: groups keywords by intent and maps clusters to existing or proposed pages.
 - `competitive-landscape`: identifies who wins across a market and what content/backlink patterns are working.
@@ -51,7 +51,7 @@ Explain the difference between data sources:
 - OpenSEO MCP tools provide SEO data such as keywords, SERPs, domain overviews, backlinks, saved keywords, projects, and rank trackers.
 - Web search can find current market context, recent pages, reviews, docs, social profiles, and contact paths outside OpenSEO.
 - Browser/page scraping can extract page copy, headings, author names, contact links, schema, and content structure.
-- Local files can preserve strategy, GSC CSVs, content briefs, crawls, prospect lists, and prior decisions over time.
+- Local files can preserve strategy, content briefs, crawl notes, prospect lists, and prior decisions over time. Prefer OpenSEO MCP for live Search Console and keyword/SERP data instead of asking users for manual exports.
 
 Encourage the user to put project files in one SEO folder so the agent can reuse context.
 
@@ -92,7 +92,7 @@ Offer concise options based on context:
 
 - "Let's run onboarding first so future work has context."
 - "Let's research keywords from your seed topics."
-- "Let's cluster your GSC/query export into page targets."
+- "Let's cluster your saved keywords and Search Console MCP data into page targets."
 - "Let's map the competitive landscape before choosing pages."
 - "Let's deep-dive one competitor."
 - "Let's find link prospects for your best linkable asset."

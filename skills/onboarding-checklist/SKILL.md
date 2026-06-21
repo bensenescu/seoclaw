@@ -1,6 +1,6 @@
 ---
 name: onboarding-checklist
-description: Guide a new OpenSEO user through workspace setup, site goals, positioning context, MCP checks, SEO strategy, and Search Console data intake.
+description: Guide a new OpenSEO user through workspace setup, site goals, positioning context, MCP checks, SEO strategy, and live OpenSEO data readiness.
 ---
 
 # OpenSEO Onboarding Checklist
@@ -25,14 +25,13 @@ Suggest that the user choose or create a local folder for SEO work, for example:
 - `~/Documents/SEO/<company-or-site>/`
 - A repo or workspace folder if SEO work should live beside website/content files
 
-Explain that keeping notes, exports, briefs, scraped pages, and reports in one folder helps the agent build context over time.
+Explain that keeping notes, briefs, content plans, scraped pages, and reports in one folder helps the agent build context over time.
 
 Recommended starter structure:
 
 ```text
 seo-workspace/
   README.md
-  gsc/
   keywords/
   competitors/
   content/
@@ -42,7 +41,7 @@ seo-workspace/
 
 Do not create folders unless the user asks. If file tools are available and the user asks, create a simple structure and a short `README.md` with the current goals and known sites.
 
-When the user says “set up this workspace” while already inside a repo or project folder, treat that as permission to create a repo-local SEO workspace rather than asking again. Prefer `seo/<domain>/` (for example `seo/openseo.so/`) so SEO notes live beside related source/config work without mixing raw exports into the root. Add a local `.gitignore` for raw GSC/crawl/keyword CSV/XLSX artifacts unless the user explicitly wants those committed.
+When the user says “set up this workspace” while already inside a repo or project folder, treat that as permission to create a repo-local SEO workspace rather than asking again. Prefer `seo/<domain>/` (for example `seo/openseo.so/`) so SEO notes live beside related source/config work without mixing raw exports into the root. Add a local `.gitignore` for raw crawl/keyword/report CSV/XLSX artifacts unless the user explicitly wants those committed.
 
 ### 2. Collect website scope
 
@@ -104,10 +103,11 @@ Verify both the server URL and OAuth mode. A config that only has
 `url: https://app.openseo.so/mcp` can list as enabled but fail with
 `401 Unauthorized`; the OpenSEO hosted MCP needs OAuth enabled and a one-time
 interactive login. (And if `hermes` reports `Server 'openseo' not found in config`
-or `No MCP servers configured`, `HERMES_HOME` isn't pointed at the seoclaw repo —
-run `export HERMES_HOME="$PWD"` from the repo root first.)
+or `No MCP servers configured`, you're not running against the seoclaw profile —
+prefix commands with `-p seoclaw`, use the `seoclaw` alias, or
+`hermes profile use seoclaw` first.)
 
-Expected config shape (already in the repo's `config.yaml`):
+Expected config shape (already in the profile's `config.yaml`):
 
 ```yaml
 mcp_servers:
@@ -116,37 +116,28 @@ mcp_servers:
     auth: oauth
 ```
 
-Useful verification commands (run from the seoclaw repo with `HERMES_HOME` set):
+Useful verification commands (against the seoclaw profile):
 
 ```bash
-hermes mcp list
-hermes mcp test openseo
-hermes mcp login openseo   # must be run interactively for first OAuth approval
+seoclaw mcp list
+seoclaw mcp test openseo
+seoclaw mcp login openseo   # must be run interactively for first OAuth approval
 ```
 
 If a non-interactive environment cannot complete OAuth, stop after confirming the config and ask the user to run the login command in their real terminal, then restart/fresh-session before expecting MCP tools to appear.
 
-### 6. Request Google Search Console export
+### 6. Verify live Search Console access through OpenSEO MCP
 
-Ask the user to export a CSV from Google Search Console and place it in the SEO working folder.
+Use OpenSEO MCP's Search Console performance tool instead of asking for manual CSV exports whenever the project has a connected property.
 
-Recommended exports:
+Recommended live pulls:
 
-- Queries: last 3 months and last 16 months if available
-- Pages: last 3 months and last 16 months if available
-- Query + page combinations when possible
-- Countries/devices if relevant
+- `dimensions: ['query']` for demand and striking-distance terms.
+- `dimensions: ['page']` for pages with impressions, weak CTR, or ranking movement.
+- `dimensions: ['query','page']` to map queries to URLs and spot cannibalization.
+- Optional `country`, `device`, `date`, or `searchAppearance` dimensions when the strategy depends on them.
 
-Ask them to drop files into `gsc/` and use names like:
-
-```text
-gsc/queries-last-3-months.csv
-gsc/pages-last-3-months.csv
-gsc/queries-last-16-months.csv
-gsc/pages-last-16-months.csv
-```
-
-Explain that GSC data reveals existing impressions, near-ranking terms, cannibalization, and pages that already have search demand.
+Explain that MCP-powered Search Console data reveals existing impressions, near-ranking terms, cannibalization, and pages that already have search demand without requiring the user to export files.
 
 ### 7. Inventory existing assets
 
@@ -162,12 +153,12 @@ Ask for or discover:
 
 ### 8. Recommend first workflow
 
-If you created a workspace, include a concise verification note before recommending the next workflow: exact path created, key files/folders written, live/site sources checked, and whether the OpenSEO MCP project and GSC exports are ready. Do not imply MCP access or GSC data exists unless a tool call or visible file confirmed it. For a concrete repo-local setup pattern, see `references/repo-local-seo-workspace.md`.
+If you created a workspace, include a concise verification note before recommending the next workflow: exact path created, key files/folders written, live/site sources checked, and whether the OpenSEO MCP project and Search Console connection are ready. Do not imply MCP access or Search Console data exists unless a tool call confirmed it. For a concrete repo-local setup pattern, see `references/repo-local-seo-workspace.md`.
 
 After intake, recommend one next OpenSEO workflow:
 
 - `keyword-research`: when the user needs ideas from seed topics
-- `keyword-clustering`: when they have keywords or GSC data to map to pages
+- `keyword-clustering`: when they have saved keywords or Search Console MCP data to map to pages
 - `competitive-landscape`: when the market is unclear
 - `competitor-analysis`: when they know a competitor to study
 - `link-prospecting`: when they have a linkable asset or target page
@@ -186,12 +177,12 @@ Then summarize:
 - Sites in scope
 - Goals
 - Known positioning
-- Uploaded data/files
+- Live OpenSEO/Search Console data checked
 - Recommended next workflow
 
 ## Guardrails
 
 - Keep setup lightweight. The user should feel oriented, not assigned homework.
-- Do not pretend a GSC CSV has been uploaded unless you can see it.
+- Do not pretend Search Console data is connected unless an MCP tool call confirms it.
 - Keep onboarding focused on setup and context unless the user asks for live research.
 - If web search or scraping is used for positioning research, distinguish source evidence from inference.
