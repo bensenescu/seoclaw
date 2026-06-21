@@ -15,6 +15,9 @@
 !/.gitignore
 !/content-eval-suite/
 !/content-eval-suite/**
+!/social/
+!demo.py
+!.env.example
 
 # ...but never the runtime files Hermes writes inside skills/ at use time
 # (skill-usage tracking). These are per-user state, not distribution content.
