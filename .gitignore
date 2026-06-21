@@ -8,6 +8,7 @@
 
 # Re-include the committed scaffold (and nothing else).
 !/seo-skills/
+!/.envrc
 !/config.yaml
 !/SOUL.md
 !/README.md

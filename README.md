@@ -7,41 +7,39 @@ config, an SEO persona, the OpenSEO MCP integration, and a bundle of SEO skills
 prospecting, coaching, onboarding) — so you don't have to configure any of it.
 
 This repo is a **configuration overlay**, not a fork: it runs the unmodified
-`hermes` command and just hands it a ready-made config + skills. The repo
-itself is the Hermes home — you point `HERMES_HOME` at it and run `hermes`.
+`hermes` command and just hands it a ready-made config + skills. You work out of
+this folder, and `hermes` reads its config from here.
 
 ## Quick start
 
 ```bash
-# 1. Clone
+# 1. Clone and enter the folder
 git clone <repo-url> seoclaw
 cd seoclaw
 
 # 2. Install Hermes (skip if you already have it)
 curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
 
-# 3. Use this repo as your Hermes home
+# 3. Point Hermes at this folder (run once per shell, from the repo root)
 export HERMES_HOME="$PWD"
 
-# 4. One-time sign-in: OpenAI Codex (offers to import an existing ~/.codex/auth.json)
-hermes auth add openai-codex
+# 4. One-time sign-ins
+hermes auth add openai-codex    # the model: OpenAI Codex (imports ~/.codex/auth.json if present)
+hermes mcp login openseo        # the SEO data: OpenSEO — approve in the browser
 
-# 5. Run it
+# 5. Start chatting
 hermes
 ```
 
-`export HERMES_HOME="$PWD"` is the one thing to remember: it tells stock Hermes
-to read this repo's `config.yaml`, `SOUL.md`, and `seo-skills/` instead of your
-default `~/.hermes`. Set it once per shell from the repo root — or add it to
-your shell rc, or use an alias:
+**Always run `hermes` from this folder with `HERMES_HOME` set** — that's what
+makes it load this repo's `config.yaml`, `SOUL.md`, and `seo-skills/` instead of
+your default `~/.hermes`. If you skip step 3 you'll see things like
+`Server 'openseo' not found in config` or `No MCP servers configured` — that just
+means `HERMES_HOME` isn't set in the current shell.
 
-```bash
-alias seoclaw='HERMES_HOME=/path/to/seoclaw hermes'
-```
-
-The first time you ask for SEO data, OpenSEO runs a one-time in-conversation
-OAuth (a browser approval). If an OpenSEO call ever returns `401 Unauthorized`,
-complete the login explicitly with `hermes mcp login openseo`.
+To set it automatically: this repo ships a `.envrc`, so if you have
+[direnv](https://direnv.net), run `direnv allow` once and `HERMES_HOME` is set
+whenever you're in the folder — no export to remember.
 
 ## How it works
 
@@ -86,6 +84,7 @@ seoclaw/
 │   ├── link-prospecting/
 │   ├── seo-coach/
 │   └── onboarding-checklist/
+├── .envrc               # optional: direnv sets HERMES_HOME when you're in the folder
 ├── .gitignore           # allowlist: commits the scaffold, ignores all runtime
 └── (runtime, git-ignored: auth, sessions, caches, synced bundled skills, …)
 ```

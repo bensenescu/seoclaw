@@ -98,11 +98,16 @@ After the user has described the company, website, goals, and positioning, check
 
 Do not run research tools just to test connectivity; `whoami` and `list_projects` are enough.
 
-#### Hermes/seoclaw MCP setup pitfall
+#### OpenSEO MCP setup pitfall
 
-When onboarding happens inside the seoclaw/Hermes wrapper, verify both the server URL and OAuth mode. A config that only has `url: https://app.openseo.so/mcp` can list as enabled but fail with `401 Unauthorized`; the OpenSEO hosted MCP needs OAuth enabled and a one-time interactive login.
+Verify both the server URL and OAuth mode. A config that only has
+`url: https://app.openseo.so/mcp` can list as enabled but fail with
+`401 Unauthorized`; the OpenSEO hosted MCP needs OAuth enabled and a one-time
+interactive login. (And if `hermes` reports `Server 'openseo' not found in config`
+or `No MCP servers configured`, `HERMES_HOME` isn't pointed at the seoclaw repo —
+run `export HERMES_HOME="$PWD"` from the repo root first.)
 
-Expected config shape:
+Expected config shape (already in the repo's `config.yaml`):
 
 ```yaml
 mcp_servers:
@@ -111,15 +116,15 @@ mcp_servers:
     auth: oauth
 ```
 
-Useful verification commands from the seoclaw repo:
+Useful verification commands (run from the seoclaw repo with `HERMES_HOME` set):
 
 ```bash
-./bin/seoclaw mcp list
-./bin/seoclaw mcp test openseo
-./bin/seoclaw mcp login openseo   # must be run interactively for first OAuth approval
+hermes mcp list
+hermes mcp test openseo
+hermes mcp login openseo   # must be run interactively for first OAuth approval
 ```
 
-If a non-interactive environment cannot complete OAuth, stop after fixing the config and ask the user to run the login command in their real terminal, then restart/fresh-session before expecting MCP tools to appear.
+If a non-interactive environment cannot complete OAuth, stop after confirming the config and ask the user to run the login command in their real terminal, then restart/fresh-session before expecting MCP tools to appear.
 
 ### 6. Request Google Search Console export
 
