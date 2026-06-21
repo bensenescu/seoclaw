@@ -10,8 +10,11 @@
 !/config.yaml
 !/SOUL.md
 !/README.md
+!/PLAN.md
 !/LICENSE
 !/.gitignore
+!/content-eval-suite/
+!/content-eval-suite/**
 
 # ...but never the runtime files Hermes writes inside skills/ at use time
 # (skill-usage tracking). These are per-user state, not distribution content.
